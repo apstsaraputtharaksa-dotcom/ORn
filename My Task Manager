@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Task Manager - โปรเจกต์ส่งครู</title>
+    <style>
+        /* CSS: จัดรูปแบบหน้าตาเว็บ */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Sukhumvit Set', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: #ffffff;
+            width: 100%;
+            max-width: 450px;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        }
+
+        h2 {
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            outline: none;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        input[type="text"]:focus {
+            border-color: #4CAF50;
+        }
+
+        button.btn-add {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        button.btn-add:hover {
+            background-color: #45a049;
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        li {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #f9f9f9;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #4CAF50;
+        }
+
+        li.completed {
+            border-left-color: #bbb;
+            opacity: 0.6;
+        }
+
+        li.completed span {
+            text-decoration: line-through;
+        }
+
+        .task-text {
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .btn-delete {
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .btn-delete:hover {
+            background-color: #cc0000;
+        }
+
+        .empty-text {
+            text-align: center;
+            color: #aaa;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>📝 รายการที่ต้องทำ</h2>
+        
+        <div class="input-group">
+            <input type="text" id="taskInput" placeholder="เพิ่มรายการใหม่..." onkeypress="handleKeyPress(event)">
+            <button class="btn-add" onclick="addTask()">เพิ่ม</button>
+        </div>
+
+        <ul id="taskList"></ul>
+        <div id="emptyMessage" class="empty-text">ไม่มีรายการในขณะนี้</div>
+    </div>
+
+    <script>
+        // JavaScript: ควบคุมการทำงานของเว็บ
+        let tasks = JSON.parse(localStorage.getItem('myTasks')) || [];
+
+        // โหลดข้อมูลเมื่อเปิดหน้าเว็บ
+        renderTasks();
+
+        function addTask() {
+            const input = document.getElementById('taskInput');
+            const text = input.value.trim();
+
+            if (text === '') {
+                alert('กรุณากรอกข้อความก่อนเพิ่มรายการ');
+                return;
+            }
+
+            tasks.push({ text: text, completed: false });
+            input.value = '';
+            saveAndRender();
+        }
+
+        function toggleTask(index) {
+            tasks[index].completed = !tasks[index].completed;
+            saveAndRender();
+        }
+
+        function deleteTask(index) {
+            tasks.splice(index, 1);
+            saveAndRender();
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                addTask();
+            }
+        }
+
+        function saveAndRender() {
+            localStorage.setItem('myTasks', JSON.stringify(tasks));
+            renderTasks();
+        }
+
+        function renderTasks() {
+            const list = document.getElementById('taskList');
+            const emptyMsg = document.getElementById('emptyMessage');
+            list.innerHTML = '';
+
+            if (tasks.length === 0) {
+                emptyMsg.style.display = 'block';
+            } else {
+                emptyMsg.style.display = 'none';
+            }
+
+            tasks.forEach((task, index) => {
+                const li = document.createElement('li');
+                if (task.completed) li.classList.add('completed');
+
+                li.innerHTML = `
+                    <span class="task-text" onclick="toggleTask(${index})">${task.text}</span>
+                    <button class="btn-delete" onclick="deleteTask(${index})">ลบ</button>
+                `;
+                list.appendChild(li);
+            });
+        }
+    </script>
+</body>
+</html>
